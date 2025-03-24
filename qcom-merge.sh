@@ -96,19 +96,19 @@ info() {
 # - must be provided
 # TAG
 # - must be provided
-# FORCE_FETCH (defaults to n; saves time when already fetched)
+# FORCE_FETCH (defaults to off; when off, saves time when already fetched)
 _var_force_fetch=$(is_true FORCE_FETCH n && echo 1 || echo 0)
-# NO_EDIT (defaults to y; saves time by not asking to edit commits without conflicts)
+# NO_EDIT (defaults to on; saves time by not asking to edit commits without conflicts)
 _var_no_edit=$(is_true NO_EDIT y && echo 1 || echo 0)
 # MERGE_LOOKBACK (defaults to "3 months"; saves time when re-running this script by not re-
 #                 attempting merges that are already present in the git log within this timeframe)
 _var_merge_lookback="${MERGE_LOOKBACK:-3 months}"
-# MERGE_EMPTY (defaults to n; saves time when re-running this script by not re-attempting
+# MERGE_EMPTY (defaults to off; when on, saves time when re-running this script by not re-attempting
 #              merges that were already up to date)
 _var_merge_empty=$(is_true MERGE_EMPTY n && echo 1 || echo 0)
 # MERGE_GIT_ARGUMENTS (defaults to "--log=1500")
 _var_merge_git_arguments="${MERGE_GIT_ARGUMENTS:-"--log=1500"}"
-# PUSH_MERGE_REVIEW (defaults to n; performs a git push-merge-review after every merge)
+# PUSH_MERGE_REVIEW (defaults to off; performs a git push-merge-review after every merge)
 _var_push_merge_review=$(is_true PUSH_MERGE_REVIEW n && echo 1 || echo 0)
 # PUSH_REMOTE (defaults to lineage/$CHIPSET-gerrit; only used when PUSH_MERGE_REVIEW is on)
 # - see main() for _var_push_remote assignment
