@@ -103,9 +103,13 @@ _var_no_edit=$(is_true NO_EDIT y && echo 1 || echo 0)
 # MERGE_LOOKBACK (defaults to "3 months"; saves time when re-running this script by not re-
 #                 attempting merges that are already present in the git log within this timeframe)
 _var_merge_lookback="${MERGE_LOOKBACK:-3 months}"
-# MERGE_EMPTY (defaults to off; when on, saves time when re-running this script by not re-attempting
-#              merges that were already up to date)
+# MERGE_EMPTY (defaults to off; when on, leaves a trail that a merge was attempted even if the repo
+#              was already up to dates. saves time when re-running this script by not re-attempting
+#              such merges, but RESUME_FROM_LAST_MERGE offers an alternative way to save some time)
 _var_merge_empty=$(is_true MERGE_EMPTY n && echo 1 || echo 0)
+# RESUME_FROM_LAST_MERGE (defaults to on; when on, saves time by continuing to merge repos from the
+#                         last repo merged in the list of required repos for CHIPSET)
+_var_resume_from_last_merge=$(is_true RESUME_FROM_LAST_MERGE y && echo 1 || echo 0)
 # MERGE_GIT_ARGUMENTS (defaults to "--log=1500")
 _var_merge_git_arguments="${MERGE_GIT_ARGUMENTS:-"--log=1500"}"
 # PUSH_MERGE_REVIEW (defaults to off; performs a git push-merge-review after every merge)
@@ -212,10 +216,34 @@ merge_tags() {
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
   local into_name="${INTO_NAME:-$current_branch}"
   local merge_lookback="${MERGE_LOOKBACK:-$_default_merge_lookback}"
-  # We could use --merges below, but we want to match our fake empty merges too.
+  # We could use --merges below, but we want to match our fake empty merges too when enabled.
   local merges="$(git log --pretty=%s --fixed-strings --since "$merge_lookback" --grep "$TAG" --grep "Merge tag")"
+  local begin_after=
   local remote
+
+  if [ $_var_resume_from_last_merge -eq 1 ]; then
+    # Check chipset remotes in reverse merge order to determine where we left off.
+    for remote in $(printf "%s\n" ${_chipset_remotes[$CHIPSET]} | tac); do
+      local remote_url="${_remote_urls[$remote]}"
+      local expected_commit_prefix="Merge tag '$TAG' of $remote_url"
+      if printf "%s\n" "$merges" | grep -qF "$expected_commit_prefix"; then
+        begin_after="$remote"
+        echo "Found merge of $remote, so will skip ahead to merging repos that follow..." >&2
+        break
+      fi
+    done
+  fi
+
   for remote in ${_chipset_remotes[$CHIPSET]}; do
+    if [ $_var_resume_from_last_merge -eq 1 ] && [ -n "$begin_after" ]; then
+      if [ "$remote" != "$begin_after" ]; then
+        continue
+      else
+        begin_after=
+      fi
+      continue
+    fi
+
     local remote_url="${_remote_urls[$remote]}"
     local expected_commit_prefix="Merge tag '$TAG' of $remote_url"
     if printf "%s\n" "$merges" | grep -qF "$expected_commit_prefix"; then
