@@ -62,7 +62,6 @@ declare -A _chipset_remotes=(
 declare -a _sorted_chipsets
 _lastIFS="$IFS"; IFS=$'\n' _sorted_chipsets=($(printf "%s\n" "${!_chipset_remotes[@]}" | sort -n)); IFS="$_lastIFS"; unset _lastIFS
 
-_default_merge_lookback="3 months"
 _push_remote_template="lineage/%s-gerrit"
 
 
@@ -215,9 +214,8 @@ merge_tags() {
   fi
   local current_branch="$(git rev-parse --abbrev-ref HEAD)"
   local into_name="${INTO_NAME:-$current_branch}"
-  local merge_lookback="${MERGE_LOOKBACK:-$_default_merge_lookback}"
   # We could use --merges below, but we want to match our fake empty merges too when enabled.
-  local merges="$(git log --pretty=%s --fixed-strings --since "$merge_lookback" --grep "$TAG" --grep "Merge tag")"
+  local merges="$(git log --pretty=%s --fixed-strings --since "$_var_merge_lookback" --grep "$TAG" --grep "Merge tag")"
   local begin_after=
   local remote
 
