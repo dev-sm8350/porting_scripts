@@ -10,7 +10,6 @@ declare -A _remote_urls=(
   [clo/data-kernel]=https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/data-kernel
   [clo/dataipa]=https://git.codelinaro.org/clo/la/platform/vendor/opensource/dataipa
   [clo/datarmnet]=https://git.codelinaro.org/clo/la/platform/vendor/qcom/opensource/datarmnet
-  [clo/datarmnet-ext]=https://git.codelinaro.org/clo/la/platform/vendor/qcom/opensource/datarmnet-ext
   [clo/display-drivers]=https://git.codelinaro.org/clo/la/platform/vendor/opensource/display-drivers
   [clo/fw-api]=https://git.codelinaro.org/clo/la/platform/vendor/qcom-opensource/wlan/fw-api
   [clo/msm]=https://git.codelinaro.org/clo/la/kernel/msm
@@ -50,14 +49,13 @@ declare -A _subtrees=(
   [clo/camera-kernel]=techpack/camera
   [clo/dataipa]=techpack/dataipa
   [clo/datarmnet]=techpack/datarmnet
-  [clo/datarmnet-ext]=techpack/datarmnet-ext
   [clo/display-drivers]=techpack/display
   [clo/video-driver]=techpack/video
 )
 
 # Map of chipset to required remotes, whitespace-separated and in merge order.
 declare -A _chipset_remotes=(
-  [sm8350]="clo/msm-5.4 clo/fw-api clo/qca-wifi-host-cmn clo/qcacld-3.0 clo/audio-kernel clo/camera-kernel clo/dataipa clo/datarmnet clo/datarmnet-ext clo/display-drivers clo/video-driver"
+  [sm8350]="clo/msm-5.4 clo/fw-api clo/qca-wifi-host-cmn clo/qcacld-3.0 clo/audio-kernel clo/camera-kernel clo/dataipa clo/datarmnet clo/display-drivers clo/video-driver"
 )
 declare -a _sorted_chipsets
 _lastIFS="$IFS"; IFS=$'\n' _sorted_chipsets=($(printf "%s\n" "${!_chipset_remotes[@]}" | sort -n)); IFS="$_lastIFS"; unset _lastIFS
